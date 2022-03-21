@@ -10,6 +10,6 @@ jishoRouter.get("/jlpt-level/:word", (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err))
 })
 
-
+jishoRouter.get()
 
 export default jishoRouter;
