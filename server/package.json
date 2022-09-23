@@ -2,8 +2,12 @@
   "type": "module",
   "dependencies": {
     "express": "^4.17.3",
+    "jp-verbs": "^1.0.1",
+    "kuroshiro": "~1.1.2",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "mongoose": "^6.2.7",
+    "node-fetch": "^3.2.10",
+    "tiny-segmenter": "^0.2.0",
     "unofficial-jisho-api": "^2.3.0"
-    
   }
 }
