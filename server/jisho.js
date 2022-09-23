@@ -82,7 +82,8 @@ const searchForJlptLevelOfWord = (searchterm) => {
     const filteredWords = words.filter(entry => entry.word == searchterm || 
         entry.word == findWordInArray(entry.word, deconjugatedSearchterms));
     console.log(filteredWords);
-    return filteredWords[0].level;
+    if(filteredWords[0]) return filteredWords[0].level;
+    else return null;
 }
 
 //endpoint to get the JLPT level of a word
@@ -102,10 +103,8 @@ jishoRouter.get("/jlpt-level/", (req, res) => {
     try{
         const wordArray = segmenter.segment(req.body.text);
 
-        console.log(wordArray);
-
-        const resultArray = wordArray.map( async (word) => {
-            return await searchForJlptLevelOfWord(word);
+        const resultArray = wordArray.map( (word) => {
+            return searchForJlptLevelOfWord(word);
         })
 
         res.json(resultArray);
