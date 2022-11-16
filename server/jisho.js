@@ -241,7 +241,7 @@ jishoRouter.get("/definition/:word", (req, res) => {
 
 //endpoint that will fetch definitions, jlpt levels and conjugations of words
 jishoRouter.get("/def-level-tense", (req, res) => {
-    // try{
+    try{
         const wordArray = segmenter.segment(req.body.text);
 
         const resultArray = wordArray.map( (word) => {
@@ -249,9 +249,9 @@ jishoRouter.get("/def-level-tense", (req, res) => {
         })
         res.json(resultArray);
 
-    // }catch(err){
-    //     res.status(400).json("Error: " + err)
-    // }
+    }catch(err){
+        res.status(400).json("Error: " + err)
+    }
 })
 
 export default jishoRouter;
