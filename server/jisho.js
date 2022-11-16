@@ -78,7 +78,10 @@ const deconjugate = (word) => {
 const deconjugateWithTenseInfo = (word) => {
     let result = Conjugator.unconjugate(word);
     result = result.map(entry => new Object(
-        {word: entry.base, tenseInfo: entry.derivationPath }))
+        {
+            word: entry.base, 
+            tenseInfo: entry.derivationPath 
+        }))
     return result;
 }
 
@@ -93,7 +96,7 @@ const findWordInArray = (key, array) => {
   }
 
 // method for searching through the bigJlpt.json
-const searchForWord = (searchterm, isWithTenseInfo = false) => {
+const searchForWord = (searchterm, isWithTenseInfo=false) => {
 
     let filteredWords = [];
 
@@ -110,13 +113,32 @@ const searchForWord = (searchterm, isWithTenseInfo = false) => {
         return data;
     })
     const words = JSON.parse(rawData);
-    filteredWords = words.filter(entry => entry.word == searchterm);
+    filteredWords = words.filter(entry => entry.word == searchterm)
+    .map(entry => new Object({
+        word: entry.word, 
+        definition: entry.meaning,
+        level: entry.level,
+        furigana: entry.furigana,
+    }));
     if(filteredWords.length <= 0){
-        const deconjugatedSearchterms = deconjugate(searchterm);
-        filteredWords = words.filter(entry => entry.word == 
-        findWordInArray(entry.word, deconjugatedSearchterms));
+        if(isWithTenseInfo == false){
+            const deconjugatedSearchterms = deconjugate(searchterm);
+            filteredWords = words.filter(entry => entry.word == 
+            findWordInArray(entry.word, deconjugatedSearchterms));
+        }else{
+            const deconjugatedSearchterms = deconjugateWithTenseInfo(searchterm);
+            filteredWords = words.filter(entry => entry.word 
+                == deconjugatedSearchterms[0].word)
+            .map(entry => new Object({
+                    word: entry.word, 
+                    definition: entry.meaning,
+                    level: entry.level,
+                    furigana: entry.furigana,
+                    tenseInfo: deconjugatedSearchterms[0].tenseInfo
+                }))
+        }
         
-    } 
+    }
 
     return filteredWords;
 }
@@ -124,7 +146,7 @@ const searchForWord = (searchterm, isWithTenseInfo = false) => {
 //method for extracting jlpt level of word
 const fetchJlptLevelOfWord = (searchterm) => {
 
-    let filteredWords = searchForWord(searchterm);
+    let filteredWords = searchForWord(searchterm, true);
     
     if(filteredWords.length <=0) return null;
 
@@ -134,11 +156,19 @@ const fetchJlptLevelOfWord = (searchterm) => {
 
 //method for extracting definition of word
 const fetchDefinitionOfWord = (searchterm) => {
-    let filteredWords = searchForWord(searchterm);
+    let filteredWords = searchForWord(searchterm, true);
 
     if(filteredWords.length <=0) return null;
 
     if(filteredWords[0]) return filteredWords[0].meaning;
+    else return null;
+}
+
+//method for extracting word with full info
+const fetchInfoOfWord = (searchterm) => {
+    let filteredWords = searchForWord(searchterm, true);
+    if(filteredWords.length <=0) return null;
+    if(filteredWords[0]) return filteredWords[0];
     else return null;
 }
 
@@ -211,7 +241,17 @@ jishoRouter.get("/definition/:word", (req, res) => {
 
 //endpoint that will fetch definitions, jlpt levels and conjugations of words
 jishoRouter.get("/def-level-tense", (req, res) => {
+    // try{
+        const wordArray = segmenter.segment(req.body.text);
 
+        const resultArray = wordArray.map( (word) => {
+            return fetchInfoOfWord(word);
+        })
+        res.json(resultArray);
+
+    // }catch(err){
+    //     res.status(400).json("Error: " + err)
+    // }
 })
 
 export default jishoRouter;
